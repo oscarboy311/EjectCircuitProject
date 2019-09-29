@@ -37,7 +37,7 @@ void loop() {
   while(currReading < threshold);
 
   // ...
-  float prevReading = bmp.readAltitude();
+  float prevReading = bmp.readAltitude();  
 }
 
 float getBias(){
