@@ -1,4 +1,5 @@
 #include <Adafruit_BMP085.h>
+#include <Wire.h>
 const int ledPin = 13; //assign an int value to the led pin number
 const int eFuse = 12; //assign an int value to the electric fuse 
 const float threshold = 100;
@@ -10,22 +11,22 @@ Adafruit_BMP085 bmp;
 
 void setup() {
   // put your setup code here, to run once:
+  Serial.begin(9600);
   pinMode(ledPin, OUTPUT);
   while (1)  {
-    Serial.begin(9600); 
     if (!bmp.begin()) {
-      Serial.println("Could not find a valid BMP085 sensor, check wiring!");
+      Serial.println("Could not find a valid BMP180 sensor, check wiring!");
     }
     else { 
-      digitalWrite(ledPin, HIGH); //power on for the pew signal
+      digitalWrite(ledPin, HIGH); // LED indicator
       break;
     }
   }
 } 
 
 void loop() {
-  // Set Bias
-  bias = getBias();
+  // Set and print Bias
+  setBias(); // About 30 seconds
   Serial.print("Bias = ");
   Serial.print(bias);
   Serial.println(" meters");
@@ -35,6 +36,9 @@ void loop() {
   do{
     // Read Sensor
     currReading = getAltitude();
+    Serial.print("Current Altitude: "); 
+    Serial.print(currReading);
+    Serial.println(" meters");
   }
   while(currReading < threshold);
   Serial.println("Threshold reached!");
@@ -77,15 +81,14 @@ void loop() {
   
 }
 
-float getBias(){
+void setBias(){
   float totalAltitudes = 0;
-  int countvalue = 0;
-  while (countvalue < 1000){
+  for(int i = 0; i < 1000; i++){
     totalAltitudes += bmp.readAltitude();
-    countvalue++;
-    delay(10);//wait for 10 miliseconds
+    //delay(10); // wait for 10 ms
   }
-  return (totalAltitudes/1000);
+  bias = totalAltitudes/1000;
+  return;
 }
 
 float getAltitude(){
